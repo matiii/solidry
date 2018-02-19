@@ -9,7 +9,17 @@ namespace Solidry.Aspects
     /// </summary>
     public abstract class Processor<TInput, TResult>
     {
-        private readonly List<TResult> _accumulator = new List<TResult>();
+        private readonly List<TResult> _accumulator;
+
+        protected Processor()
+        {
+            _accumulator = new List<TResult>();
+        }
+
+        protected Processor(int capacity)
+        {
+            _accumulator = new List<TResult>(capacity);
+        }
 
         /// <summary>
         /// History of results
@@ -27,7 +37,6 @@ namespace Solidry.Aspects
         /// Body of method
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="accumulator"></param>
         /// <returns>Return next result</returns>
         protected abstract TResult Process(TInput context);
 
@@ -38,6 +47,8 @@ namespace Solidry.Aspects
         /// <returns></returns>
         public Option<TResult> Invoke(TInput context)
         {
+            _accumulator.Clear();
+
             while (!FinishLoop(context))
             {
                 TResult result = Process(context);
