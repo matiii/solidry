@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using Solidry.Aspects;
 using Solidry.Extensions;
 
@@ -7,7 +7,6 @@ namespace Solidry.Examples.Aspects.WithProcessor
 {
     public class QuickSort: WithProcessor<int[], int[]>
     {
-        private int _step = 1;
 //        let rec quicksort2 = function
 //        | [] -> []                         
 //        | first::rest -> 
@@ -15,45 +14,37 @@ namespace Solidry.Examples.Aspects.WithProcessor
 //            List.concat [quicksort2 smaller;[first]; quicksort2 larger]
         protected override bool FinishLoop(int[] context)
         {
-            return _step == 3;
+            return context.Length == 0;
         }
 
         protected override int[] Process(int[] context)
         {
-            if (context.IsEmpty() || context.Length == 1)
-            {
-                _step = 3;
-                return context;
-            }
-
-            if (Accumulator.IsEmpty())
+            if (context.Length == 1)
             {
                 return context;
             }
 
-            var data = Accumulator.Last();
+            var result = context.Min(2);
 
-            if (data.IsEmpty())
+            SetInput(result.Rest);
+
+            return result.Min;
+        }
+
+        public int[] DoQuickSort(int[] input)
+        {
+            var result = Invoke(input);
+
+            if (!result.HasValue)
             {
-                _step++;
+                return Array.Empty<int>();
             }
 
-            var first = data.First();
-            var rest = data.Skip(1).ToArray();
+            var list = new List<int>(input.Length);
 
-            if (_step == 1)
-            {
-                return rest.Where(x => x <= first).ToArray();
-            }
+            Accumulator.Each(x => list.AddRange(x));
 
-            if (Accumulator.IsEmpty())
-            {
-            }
-
-            
-
-
-            var larger = rest.Where(x => x > first).ToArray();
+            return list.ToArray();
         }
     }
 }

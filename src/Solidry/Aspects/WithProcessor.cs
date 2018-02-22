@@ -11,6 +11,8 @@ namespace Solidry.Aspects
     {
         private readonly List<TResult> _accumulator;
 
+        private TInput _input;
+
         protected WithProcessor()
         {
             _accumulator = new List<TResult>();
@@ -45,13 +47,14 @@ namespace Solidry.Aspects
         /// </summary>
         /// <param name="context">Input parameter</param>
         /// <returns></returns>
-        public Option<TResult> Invoke(TInput context)
+        protected Option<TResult> Invoke(TInput context)
         {
             _accumulator.Clear();
+            _input = context;
 
-            while (!FinishLoop(context))
+            while (!FinishLoop(_input))
             {
-                TResult result = Process(context);
+                TResult result = Process(_input);
 
                 _accumulator.Add(result);
             }
@@ -62,6 +65,15 @@ namespace Solidry.Aspects
             }
 
             return Option<TResult>.Create(_accumulator.Last());
+        }
+
+        /// <summary>
+        /// Set input argument to be processed
+        /// </summary>
+        /// <param name="context"></param>
+        protected void SetInput(TInput context)
+        {
+            _input = context;
         }
     }
 }
