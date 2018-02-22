@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Solidry\Solidry.csproj" />
+    <ProjectReference Include="..\Solidry\Solidry.csproj" />
   </ItemGroup>
 
 </Project>

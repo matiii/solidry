@@ -7,16 +7,16 @@ namespace Solidry.Aspects
     /// <summary>
     /// Process recursion in object oriented way
     /// </summary>
-    public abstract class Processor<TInput, TResult>
+    public abstract class WithProcessor<TInput, TResult>
     {
         private readonly List<TResult> _accumulator;
 
-        protected Processor()
+        protected WithProcessor()
         {
             _accumulator = new List<TResult>();
         }
 
-        protected Processor(int capacity)
+        protected WithProcessor(int capacity)
         {
             _accumulator = new List<TResult>(capacity);
         }

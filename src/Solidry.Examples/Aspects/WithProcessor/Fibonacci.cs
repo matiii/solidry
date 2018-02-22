@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Solidry.Aspects;
+﻿using Solidry.Aspects;
 using Solidry.Extensions;
 
-namespace Solidry.Examples.Aspects.Tailrec
+namespace Solidry.Examples.Aspects.WithProcessor
 {
-    public class Fibonacci : Processor<int, int>
+    public class Fibonacci : WithProcessor<int, int>
     {
         public static int Fib(int n)
         {

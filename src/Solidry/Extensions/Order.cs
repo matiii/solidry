@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Solidry.Results;
 
 namespace Solidry.Extensions
 {
@@ -15,6 +16,16 @@ namespace Solidry.Extensions
             return collection[0];
         }
 
+        public static Option<T> TryFirst<T>(this IReadOnlyList<T> collection)
+        {
+            if (collection.IsEmpty())
+            {
+                return Option<T>.Empty;
+            }
+
+            return Option<T>.Create(collection[0]);
+        }
+
         public static T Second<T>(this IReadOnlyList<T> collection)
         {
             if (collection.Count < 2)
@@ -23,6 +34,16 @@ namespace Solidry.Extensions
             }
 
             return collection[1];
+        }
+
+        public static Option<T> TrySecond<T>(this IReadOnlyList<T> collection)
+        {
+            if (collection.Count < 2)
+            {
+                return Option<T>.Empty;
+            }
+
+            return Option<T>.Create(collection[1]);
         }
 
         public static T BeforeLast<T>(this IReadOnlyList<T> collection)
@@ -35,6 +56,16 @@ namespace Solidry.Extensions
             return collection[collection.Count - 2];
         }
 
+        public static Option<T> TryBeforeLast<T>(this IReadOnlyList<T> collection)
+        {
+            if (collection.Count < 2)
+            {
+                return Option<T>.Empty;
+            }
+
+            return Option<T>.Create(collection[collection.Count - 2]);
+        }
+
         public static T Last<T>(this IReadOnlyList<T> collection)
         {
             if (collection.IsEmpty())
@@ -43,6 +74,16 @@ namespace Solidry.Extensions
             }
             
             return collection[collection.Count - 1];
+        }
+
+        public static Option<T> TryLast<T>(this IReadOnlyList<T> collection)
+        {
+            if (collection.IsEmpty())
+            {
+                return Option<T>.Empty;
+            }
+
+            return Option<T>.Create(collection[collection.Count - 1]);
         }
     }
 }
