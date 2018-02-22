@@ -5,7 +5,7 @@ using Solidry.Extensions;
 
 namespace Solidry.Examples.Aspects.WithProcessor
 {
-    public class QuickSort: WithProcessor<int[], int[]>
+    public class QuickSort : WithProcessor<int[], int[]>
     {
 //        let rec quicksort2 = function
 //        | [] -> []                         
@@ -40,11 +40,7 @@ namespace Solidry.Examples.Aspects.WithProcessor
                 return Array.Empty<int>();
             }
 
-            var list = new List<int>(input.Length);
-
-            Accumulator.Each(x => list.AddRange(x));
-
-            return list.ToArray();
+            return Accumulator.ToOne();
         }
     }
 }

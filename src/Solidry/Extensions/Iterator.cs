@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Solidry.Results.Iterator;
 
 namespace Solidry.Extensions
@@ -56,6 +57,27 @@ namespace Solidry.Extensions
             }
 
             return new PartitionResult<T>(@true, @false);
+        }
+
+        /// <summary>
+        /// Concatenate collection of arrays into one
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        public static T[] ToOne<T>(this IReadOnlyList<T[]> collection)
+        {
+            var result = new T[collection.Sum(a => a.Length)];
+
+            int offset = 0;
+
+            for (int x = 0; x < collection.Count; x++)
+            {
+                collection[x].CopyTo(result, offset);
+                offset += collection[x].Length;
+            }
+
+            return result;
         }
     }
 }
