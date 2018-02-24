@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Solidry.Helpers;
 using Solidry.Results.Iterator;
 
 namespace Solidry.Extensions
@@ -79,5 +80,26 @@ namespace Solidry.Extensions
 
             return result;
         }
+
+        /// <summary>
+        /// Swap elements in array from end to begining until predicate is false
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <param name="predicate"></param>
+        public static void SwapRightUntil<T>(this T[] array, Func<T, T, bool> predicate)
+        {
+            for (int i = array.Length - 1; i > 0; i--)
+            {
+                if (predicate(array[i-1], array[i]))
+                {
+                    Utils.Swap(ref array[i-1], ref array[i]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
     }
-}
+}   

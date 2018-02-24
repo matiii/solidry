@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Solidry.Aspects;
 using Solidry.Extensions;
 
@@ -7,11 +6,10 @@ namespace Solidry.Examples.Aspects.WithProcessor
 {
     public class QuickSort : WithProcessor<int[], int[]>
     {
-//        let rec quicksort2 = function
-//        | [] -> []                         
-//        | first::rest -> 
-//        let smaller, larger = List.partition((>=) first) rest
-//            List.concat [quicksort2 smaller;[first]; quicksort2 larger]
+        public QuickSort(int capacity): base(capacity) { }
+
+        public QuickSort() { }
+
         protected override bool FinishLoop(int[] context)
         {
             return context.Length == 0;
@@ -21,10 +19,12 @@ namespace Solidry.Examples.Aspects.WithProcessor
         {
             if (context.Length == 1)
             {
+                SetInput(Array.Empty<int>());
+
                 return context;
             }
 
-            var result = context.Min(2);
+            var result = context.Min(3 > context.Length ? context.Length : 3);
 
             SetInput(result.Rest);
 

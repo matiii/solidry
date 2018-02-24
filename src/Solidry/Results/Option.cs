@@ -3,13 +3,14 @@ using System.Collections.Generic;
 
 namespace Solidry.Results
 {
+    /// <inheritdoc cref="IEquatable{TOption}" />
     /// <summary>
     /// Instead return null, return option.
     /// </summary>
     /// <typeparam name="T">Payload</typeparam>
     public struct Option<T>: IEquatable<Option<T>>
     {
-        public T Value { get; }
+        public T Value { get; } 
 
         public bool HasValue { get; }
 

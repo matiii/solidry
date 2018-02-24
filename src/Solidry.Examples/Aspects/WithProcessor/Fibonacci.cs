@@ -1,25 +1,11 @@
-﻿using Solidry.Aspects;
+﻿using System.Linq;
+using Solidry.Aspects;
 using Solidry.Extensions;
 
 namespace Solidry.Examples.Aspects.WithProcessor
 {
     public class Fibonacci : WithProcessor<int, int>
     {
-        public static int Fib(int n)
-        {
-            if (n == 0)
-            {
-                return 0;
-            }
-
-            if (n == 1 || n == 2)
-            {
-                return 1;
-            }
-
-            return Fib(n - 1) + Fib(n - 2);
-        }
-
         protected override bool FinishLoop(int context)
         {
             return Accumulator.Count == context + 1;
@@ -38,6 +24,18 @@ namespace Solidry.Examples.Aspects.WithProcessor
             }
 
             return Accumulator.BeforeLast() + Accumulator.Last();
+        }
+
+        public int Return(int i)
+        {
+            return Invoke(i).Value;
+        }
+
+        public int[] GetRow(int i)
+        {
+            Invoke(i);
+
+            return Accumulator.ToArray();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Solidry.Helpers;
 using Solidry.Results.Analytics;
 
@@ -7,6 +6,14 @@ namespace Solidry.Extensions
 {
     public static class Analytics
     {
+
+        /// <summary>
+        /// Partition array for minimal and rest elements
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array">Source</param>
+        /// <param name="capacity">Number of minimal elements</param>
+        /// <returns></returns>
         public static MinResult<T> Min<T>(this T[] array, int capacity = 1) where T : IComparable<T>
         {
             if (capacity < 1)
@@ -37,8 +44,8 @@ namespace Solidry.Extensions
                 if (c < 0)
                 {
                     Utils.Swap(ref rest[i], ref min[lastIndex]);
-
-                    Array.Sort(min);
+                        
+                    min.SwapRightUntil((left, right) => left.CompareTo(right) > -1);
                 }
             }
 
