@@ -39,14 +39,14 @@ namespace Solidry.Aspects
         protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
         {
             Type typeException = typeof(TException);
-
+            Action<Exception> a = exception => { };
             if (_handlers.ContainsKey(typeException))
             {
-                _handlers[typeException].Add((Func<Exception, bool>) handler);
+                _handlers[typeException].Add(e => handler((TException)e));
             }
             else
             {
-                _handlers.Add(typeException, new List<Func<Exception, bool>> {(Func<Exception, bool>) handler});
+                _handlers.Add(typeException, new List<Func<Exception, bool>> {e => handler((TException)e)});
             }
         }
 
