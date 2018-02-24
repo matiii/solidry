@@ -8,7 +8,7 @@ namespace Solidry.Examples
     {
         static void Main(string[] args)
         {
-            var array = new int[100_000];
+            var array = new int[10_000];
 
             var random = new Random();
 

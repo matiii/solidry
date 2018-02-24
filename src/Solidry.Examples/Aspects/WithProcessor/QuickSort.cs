@@ -24,7 +24,7 @@ namespace Solidry.Examples.Aspects.WithProcessor
                 return context;
             }
 
-            var result = context.Min(3 > context.Length ? context.Length : 3);
+            var result = context.Min(2);
 
             SetInput(result.Rest);
 
