@@ -1,6 +1,6 @@
 ﻿namespace Solidry.Extensions
 {
-    public static class TaskExtensions
+    public static class Task
     {
         
     }

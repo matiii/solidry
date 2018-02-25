@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Expressions\" />
     <Folder Include="Internal\Analytics\" />
   </ItemGroup>
 

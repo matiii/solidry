@@ -13,6 +13,10 @@ namespace Solidry.Aspects
 
         private bool _errorHandlersRegistered;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shouldBreak">If true, only one handler handle exception</param>
         protected WithErrorHandler(bool shouldBreak)
         {
             _shouldBreak = shouldBreak;
@@ -39,7 +43,7 @@ namespace Solidry.Aspects
         protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
         {
             Type typeException = typeof(TException);
-            Action<Exception> a = exception => { };
+
             if (_handlers.ContainsKey(typeException))
             {
                 _handlers[typeException].Add(e => handler((TException)e));
