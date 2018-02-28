@@ -43,7 +43,7 @@ namespace Solidry.Extensions
 
                 if (c < 0)
                 {
-                    Utils.Swap(ref rest[i], ref min[lastIndex]);
+                    UtilsHelper.Swap(ref rest[i], ref min[lastIndex]);
                         
                     min.SwapRightUntil((left, right) => left.CompareTo(right) > -1);
                 }
@@ -51,5 +51,7 @@ namespace Solidry.Extensions
 
             return new MinResult<T>(min, rest);
         }
+
+        //TODO: add Max<T>
     }
 }

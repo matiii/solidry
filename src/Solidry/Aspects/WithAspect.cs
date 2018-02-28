@@ -32,5 +32,15 @@ namespace Solidry.Aspects
 
             return output;
         }
+
+        protected void AddBefore(Func<TInput, Option<TOutput>> before)
+        {
+            _before.Add(before);
+        }
+
+        protected void AddAfter(Action<TInput, TOutput> after)
+        {
+            _after.Add(after);
+        }
     }
 }

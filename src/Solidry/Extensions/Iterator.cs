@@ -93,7 +93,7 @@ namespace Solidry.Extensions
             {
                 if (predicate(array[i-1], array[i]))
                 {
-                    Utils.Swap(ref array[i-1], ref array[i]);
+                    UtilsHelper.Swap(ref array[i-1], ref array[i]);
                 }
                 else
                 {

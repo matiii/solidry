@@ -1,6 +1,6 @@
 ﻿namespace Solidry.Helpers
 {
-    public static class Utils
+    public static class UtilsHelper
     {
         public static void Swap<T>(ref T lhs, ref T rhs)
         {

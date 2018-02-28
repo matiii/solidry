@@ -1,6 +1,6 @@
 ﻿namespace Solidry.Helpers
 {
-    public static class Instance
+    public static class InstanceHelper
     {
         public static T Create<T>(params object[] arguments)
         {
