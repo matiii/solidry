@@ -5,7 +5,7 @@ using Solidry.Results;
 namespace Solidry.Aspects
 {
     /// <summary>
-    /// Process recursion in object oriented way
+    /// Process recursion in object oriented way.
     /// </summary>
     public abstract class WithProcessor<TInput, TResult>
     {
@@ -13,37 +13,44 @@ namespace Solidry.Aspects
 
         private TInput _input;
 
+        /// <summary>
+        /// Create processor.
+        /// </summary>
         protected WithProcessor()
         {
             _accumulator = new List<TResult>();
         }
 
+        /// <summary>
+        /// Create processor.
+        /// </summary>
+        /// <param name="capacity">Initial capacity of accumulator</param>
         protected WithProcessor(int capacity)
         {
             _accumulator = new List<TResult>(capacity);
         }
 
         /// <summary>
-        /// History of results
+        /// History of results.
         /// </summary>
         protected IReadOnlyList<TResult> Accumulator => _accumulator;
 
         /// <summary>
-        /// Check if finish execution of method
+        /// Check if finish execution of method.
         /// </summary>
         /// <param name="context"></param>
         /// <returns>If true return</returns>
         protected abstract bool FinishLoop(TInput context);
 
         /// <summary>
-        /// Body of method
+        /// Body of method.
         /// </summary>
         /// <param name="context"></param>
         /// <returns>Return next result</returns>
         protected abstract TResult Process(TInput context);
 
         /// <summary>
-        /// Invoke processing
+        /// Invoke processing.
         /// </summary>
         /// <param name="context">Input parameter</param>
         /// <returns></returns>
@@ -68,7 +75,7 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Set input argument to be processed
+        /// Set input argument to be processed.
         /// </summary>
         /// <param name="context"></param>
         protected void SetInput(TInput context)

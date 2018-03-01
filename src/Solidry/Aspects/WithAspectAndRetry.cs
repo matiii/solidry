@@ -1,6 +1,6 @@
 ﻿namespace Solidry.Aspects
 {
-    public abstract class WithAspectAndErrorHandler
+    public class WithAspectAndRetry
     {
         
     }

@@ -14,7 +14,7 @@ namespace Solidry.Aspects
         private bool _errorHandlersRegistered;
 
         /// <summary>
-        /// 
+        /// Create error handler
         /// </summary>
         /// <param name="shouldBreak">If true, only one handler handle exception</param>
         protected WithErrorHandler(bool shouldBreak)
@@ -22,6 +22,9 @@ namespace Solidry.Aspects
             _shouldBreak = shouldBreak;
         }
 
+        /// <summary>
+        /// Create error handler with shouldBreak = true
+        /// </summary>
         protected WithErrorHandler() : this(true)
         {
         }
@@ -32,14 +35,27 @@ namespace Solidry.Aspects
         /// <param name="input"></param>
         /// <returns></returns>
         protected abstract TOutput Try(TInput input);
-
+        
+        /// <summary>
+        /// Register error handlers
+        /// </summary>
         protected abstract void RegisterErrorhandlers();
 
+        /// <summary>
+        /// Execute finally logic. It will execute always.
+        /// Good spot do dispose objects.
+        /// </summary>
+        /// <param name="input"></param>
         protected virtual void Finally(TInput input)
         {
             (input as IDisposable)?.Dispose();
         }
 
+        /// <summary>
+        /// Add error handler. If return true exception has been handled.
+        /// </summary>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="handler"></param>
         protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
         {
             Type typeException = typeof(TException);
@@ -54,12 +70,17 @@ namespace Solidry.Aspects
             }
         }
 
+        /// <summary>
+        /// Execute logic with error handlers
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         protected Option<TOutput> Invoke(TInput input)
         {
             if (!_errorHandlersRegistered)
             {
-                _errorHandlersRegistered = true;
                 RegisterErrorhandlers();
+                _errorHandlersRegistered = true;
             }
 
             try

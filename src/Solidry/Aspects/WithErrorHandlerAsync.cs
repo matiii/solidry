@@ -18,7 +18,7 @@ namespace Solidry.Aspects
         private bool _errorHandlersRegistered;
 
         /// <summary>
-        /// 
+        /// Create error handler
         /// </summary>
         /// <param name="shouldBreak">If true, only one handler handle exception</param>
         protected WithErrorHandlerAsync(bool shouldBreak)
@@ -26,6 +26,9 @@ namespace Solidry.Aspects
             _shouldBreak = shouldBreak;
         }
 
+        /// <summary>
+        /// Create error handler with shouldBreak = true
+        /// </summary>
         protected WithErrorHandlerAsync() : this(true)
         {
         }
@@ -37,8 +40,17 @@ namespace Solidry.Aspects
         /// <returns></returns>
         protected abstract Task<TOutput> TryAsync(TInput input);
 
+        /// <summary>
+        /// Register error handler
+        /// </summary>
         protected abstract void RegisterErrorhandlers();
 
+        /// <summary>
+        /// Execute finally logic.
+        /// Good place to dispose objects.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         protected virtual Task FinallyAsync(TInput input)
         {
             (input as IDisposable)?.Dispose();
@@ -84,6 +96,11 @@ namespace Solidry.Aspects
             }
         }
 
+        /// <summary>
+        /// Execute logic with error handler
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         protected async Task<Option<TOutput>> InvokeAsync(TInput input)
         {
             if (!_errorHandlersRegistered)
@@ -98,7 +115,6 @@ namespace Solidry.Aspects
             }
             catch (Exception e)
             {
-                //TODO
                 Type type = e.GetType();
                 bool isHandled = false;
 
@@ -118,12 +134,7 @@ namespace Solidry.Aspects
                     }
                 }
 
-                if (!isHandled)
-                {
-                    throw;
-                }
-
-                if (_handlersAsync.ContainsKey(type))
+                if (!isHandled && _handlersAsync.ContainsKey(type))
                 {
                     for (int i = 0; i < _handlersAsync[type].Count; i++)
                     {

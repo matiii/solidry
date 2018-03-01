@@ -16,7 +16,7 @@ namespace Solidry.Extensions
         /// <returns></returns>
         public static bool IsEmpty<T>(this IReadOnlyList<T> collection)
         {
-            return collection.Count == 0;
+            return collection == null || collection.Count == 0;
         }
 
         /// <summary>
