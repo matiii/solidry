@@ -18,7 +18,7 @@ namespace Solidry.Aspects
         private bool _errorHandlersRegistered;
 
         /// <summary>
-        /// Create error handler
+        /// Create error handler.
         /// </summary>
         /// <param name="shouldBreak">If true, only one handler handle exception</param>
         protected WithErrorHandlerAsync(bool shouldBreak)
@@ -27,23 +27,23 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Create error handler with shouldBreak = true
+        /// Create error handler with shouldBreak = true.
         /// </summary>
         protected WithErrorHandlerAsync() : this(true)
         {
         }
 
         /// <summary>
-        /// Try execute logic
+        /// Try execute logic.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected abstract Task<TOutput> TryAsync(TInput input);
 
         /// <summary>
-        /// Register error handler
+        /// Register error handler.
         /// </summary>
-        protected abstract void RegisterErrorhandlers();
+        protected abstract void RegisterErrorHandlers();
 
         /// <summary>
         /// Execute finally logic.
@@ -97,7 +97,7 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Execute logic with error handler
+        /// Execute logic with error handler.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
@@ -106,7 +106,7 @@ namespace Solidry.Aspects
             if (!_errorHandlersRegistered)
             {
                 _errorHandlersRegistered = true;
-                RegisterErrorhandlers();
+                RegisterErrorHandlers();
             }
 
             try

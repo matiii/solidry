@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Solidry.Helpers;
 using Solidry.Results.Analytics;
 
@@ -53,5 +54,32 @@ namespace Solidry.Extensions
         }
 
         //TODO: add Max<T>
+
+        /// <summary>
+        /// Partition collection doubly
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static PartitionResult<T> Partition<T>(this IReadOnlyList<T> collection, Func<int, T, bool> predicate)
+        {
+            var @true = new List<T>(collection.Count / 2);
+            var @false = new List<T>(collection.Count / 2);
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                if (predicate(i, collection[i]))
+                {
+                    @true.Add(collection[i]);
+                }
+                else
+                {
+                    @false.Add(collection[i]);
+                }
+            }
+
+            return new PartitionResult<T>(@true, @false);
+        }
     }
 }

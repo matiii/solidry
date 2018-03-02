@@ -13,8 +13,14 @@ namespace Solidry.Aspects
             _container = container;
         }
 
+        /// <summary>
+        /// Get container.
+        /// </summary>
         public TContainer Kernel => _container;
 
+        /// <summary>
+        /// Install all services.
+        /// </summary>
         public virtual void Configure()
         {
             foreach (var service in GetServiceInstallers())
@@ -23,8 +29,15 @@ namespace Solidry.Aspects
             }
         }
 
+        /// <summary>
+        /// Get current application type.
+        /// </summary>
         public abstract TApplicationType CurrentApplicationType { get; }
 
+        /// <summary>
+        /// Get all installers to install.
+        /// </summary>
+        /// <returns></returns>
         public abstract IEnumerable<WithServiceInstaler<TContainer, TApplicationType>> GetServiceInstallers();
     }
 

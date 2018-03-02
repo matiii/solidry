@@ -21,7 +21,7 @@ namespace Solidry.Examples.Aspects.WithErrorHandler
             return input / 0;
         }
 
-        protected override void RegisterErrorhandlers()
+        protected override void RegisterErrorHandlers()
         {
             AddErrorHandler<Exception>(e =>
             {

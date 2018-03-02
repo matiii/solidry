@@ -19,19 +19,19 @@ namespace Solidry.Aspects
         private bool _aspectsWasRegister;
 
         /// <summary>
-        /// Execute asynchronous logic
+        /// Execute asynchronous logic.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected abstract Task<TOutput> ExecuteAsync(TInput input);
 
         /// <summary>
-        /// Register aspects
+        /// Register aspects.
         /// </summary>
         protected abstract void RegisterAspects();
 
         /// <summary>
-        /// Execute all pipeline with aspects
+        /// Execute logic with aspects.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
