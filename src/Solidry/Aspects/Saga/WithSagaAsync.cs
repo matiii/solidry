@@ -1,4 +1,4 @@
-﻿namespace Solidry.Aspects
+﻿namespace Solidry.Aspects.Saga
 {
     public class WithSagaAsync
     {
