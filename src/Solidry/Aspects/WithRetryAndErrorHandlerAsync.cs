@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Solidry.Results;
 
 namespace Solidry.Aspects
 {
-    public abstract class WithAspectAndErrorHandler<TInput, TOutput>: WithAspect<TInput, TOutput>
+    public abstract class WithRetryAndErrorHandlerAsync<TInput, TOutput> : WithRetryAsync<TInput, TOutput>
     {
         private readonly Dictionary<Type, List<Func<Exception, bool>>> _handlers =
             new Dictionary<Type, List<Func<Exception, bool>>>();
+
+        private readonly Dictionary<Type, List<Func<Exception, Task<bool>>>> _handlersAsync =
+            new Dictionary<Type, List<Func<Exception, Task<bool>>>>();
 
         private readonly bool _shouldBreak;
 
@@ -17,7 +21,7 @@ namespace Solidry.Aspects
         /// Create error handler.
         /// </summary>
         /// <param name="shouldBreak">If true, only one handler handle exception</param>
-        protected WithAspectAndErrorHandler(bool shouldBreak)
+        protected WithRetryAndErrorHandlerAsync(bool shouldBreak)
         {
             _shouldBreak = shouldBreak;
         }
@@ -25,27 +29,30 @@ namespace Solidry.Aspects
         /// <summary>
         /// Create error handler with shouldBreak = true.
         /// </summary>
-        protected WithAspectAndErrorHandler() : this(true)
+        protected WithRetryAndErrorHandlerAsync() : this(true)
         {
         }
 
         /// <summary>
-        /// Register error handlers
+        /// Register error handler.
         /// </summary>
         protected abstract void RegisterErrorHandlers();
 
         /// <summary>
-        /// Execute finally logic. It will execute always.
-        /// Good spot do dispose objects.
+        /// Execute finally logic.
+        /// Good place to dispose objects.
         /// </summary>
         /// <param name="input"></param>
-        protected virtual void Finally(TInput input)
+        /// <returns></returns>
+        protected virtual Task FinallyAsync(TInput input)
         {
             (input as IDisposable)?.Dispose();
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Add error handler. If return true exception has been handled.
+        /// Add synchronous error handler. It will be executed before asynchronous error handlers.
         /// </summary>
         /// <typeparam name="TException"></typeparam>
         /// <param name="handler"></param>
@@ -64,21 +71,40 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Execute logic with error handlers.
+        /// Add asynchronous error handler. It will be executed after synchronous error handlers.
+        /// </summary>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="handler"></param>
+        protected void AddErrorHandler<TException>(Func<TException, Task<bool>> handler) where TException : Exception
+        {
+            Type typeException = typeof(TException);
+
+            if (_handlersAsync.ContainsKey(typeException))
+            {
+                _handlersAsync[typeException].Add(e => handler((TException)e));
+            }
+            else
+            {
+                _handlersAsync.Add(typeException, new List<Func<Exception, Task<bool>>> { e => handler((TException)e) });
+            }
+        }
+
+        /// <summary>
+        /// Execute logic with error handler.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        protected new Option<TOutput> Invoke(TInput input)
+        protected new async Task<Option<TOutput>> InvokeAsync(TInput input)
         {
             if (!_errorHandlersRegistered)
             {
-                RegisterErrorHandlers();
                 _errorHandlersRegistered = true;
+                RegisterErrorHandlers();
             }
 
             try
             {
-                return Option<TOutput>.Create(base.Invoke(input));
+                return Option<TOutput>.Create(await base.InvokeAsync(input));
             }
             catch (Exception e)
             {
@@ -101,6 +127,22 @@ namespace Solidry.Aspects
                     }
                 }
 
+                if (!isHandled && _handlersAsync.ContainsKey(type))
+                {
+                    for (int i = 0; i < _handlersAsync[type].Count; i++)
+                    {
+                        if (await _handlersAsync[type][i](e))
+                        {
+                            isHandled = true;
+
+                            if (_shouldBreak)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (!isHandled)
                 {
                     throw;
@@ -108,7 +150,7 @@ namespace Solidry.Aspects
             }
             finally
             {
-                Finally(input);
+                await FinallyAsync(input);
             }
 
             return Option<TOutput>.Empty;

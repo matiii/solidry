@@ -4,7 +4,10 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
-    public abstract class WithAspectAndErrorHandler<TInput, TOutput>: WithAspect<TInput, TOutput>
+    /// <summary>
+    /// With aspect and retry and error handler
+    /// </summary>
+    public abstract class WithSaga<TInput, TOutput> : WithAspectAndRetry<TInput, TOutput>
     {
         private readonly Dictionary<Type, List<Func<Exception, bool>>> _handlers =
             new Dictionary<Type, List<Func<Exception, bool>>>();
@@ -17,7 +20,7 @@ namespace Solidry.Aspects
         /// Create error handler.
         /// </summary>
         /// <param name="shouldBreak">If true, only one handler handle exception</param>
-        protected WithAspectAndErrorHandler(bool shouldBreak)
+        protected WithSaga(bool shouldBreak)
         {
             _shouldBreak = shouldBreak;
         }
@@ -25,7 +28,7 @@ namespace Solidry.Aspects
         /// <summary>
         /// Create error handler with shouldBreak = true.
         /// </summary>
-        protected WithAspectAndErrorHandler() : this(true)
+        protected WithSaga() : this(true)
         {
         }
 
