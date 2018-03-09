@@ -8,7 +8,7 @@ namespace Solidry.Extensions
     {
         public static T First<T>(this IReadOnlyList<T> collection)
         {
-            if (collection.IsEmpty())
+            if (collection.IsNullOrEmpty())
             {
                 throw new ArgumentOutOfRangeException("Collection has 0 elements.");
             }
@@ -18,7 +18,7 @@ namespace Solidry.Extensions
 
         public static Option<T> TryFirst<T>(this IReadOnlyList<T> collection)
         {
-            if (collection.IsEmpty())
+            if (collection.IsNullOrEmpty())
             {
                 return Option<T>.Empty;
             }
@@ -68,7 +68,7 @@ namespace Solidry.Extensions
 
         public static T Last<T>(this IReadOnlyList<T> collection)
         {
-            if (collection.IsEmpty())
+            if (collection.IsNullOrEmpty())
             {
                 throw new ArgumentOutOfRangeException("Collection has 0 elements.");
             }
@@ -78,7 +78,7 @@ namespace Solidry.Extensions
 
         public static Option<T> TryLast<T>(this IReadOnlyList<T> collection)
         {
-            if (collection.IsEmpty())
+            if (collection.IsNullOrEmpty())
             {
                 return Option<T>.Empty;
             }

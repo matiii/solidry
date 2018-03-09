@@ -8,12 +8,12 @@ namespace Solidry.Extensions
     public static class Iterator
     {
         /// <summary>
-        /// Check if collection is empty
+        /// Check if collection is null or empty
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static bool IsEmpty<T>(this IReadOnlyList<T> collection)
+        public static bool IsNullOrEmpty<T>(this IReadOnlyList<T> collection)
         {
             return collection == null || collection.Count == 0;
         }
@@ -23,12 +23,26 @@ namespace Solidry.Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
-        /// <param name="action"></param>
+        /// <param name="action">(item)</param>
         public static void Each<T>(this IReadOnlyList<T> collection, Action<T> action)
         {
             for (int i = 0; i < collection.Count; i++)
             {
                 action(collection[i]);
+            }
+        }
+
+        /// <summary>
+        /// Performs the specified action on each element of collection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">source</param>
+        /// <param name="action">(index, item)</param>
+        public static void Each<T>(this IReadOnlyList<T> collection, Action<int,T> action)
+        {
+            for (int i = 0; i < collection.Count; i++)
+            {
+                action(i,collection[i]);
             }
         }
 

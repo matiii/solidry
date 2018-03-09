@@ -13,7 +13,7 @@ namespace Solidry.Examples.Aspects.WithProcessor
 
         protected override int Process(int context)
         {
-            if (Accumulator.IsEmpty())
+            if (Accumulator.IsNullOrEmpty())
             {
                 return 0;
             }

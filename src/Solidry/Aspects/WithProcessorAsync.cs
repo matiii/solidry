@@ -64,7 +64,7 @@ namespace Solidry.Aspects
                 _accumulator.Add(result);
             }
 
-            if (_accumulator.IsEmpty())
+            if (_accumulator.IsNullOrEmpty())
             {
                 return Option<TResult>.Empty;
             }

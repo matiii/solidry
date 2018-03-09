@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Solidry.Helpers;
 using Solidry.Results.Analytics;
 
@@ -54,10 +53,15 @@ namespace Solidry.Extensions
             return new MinResult<T>(min, rest);
         }
 
-        //TODO: memory copy
-        public static MinResult<T> _Min<T>(this T[] array, int capacity = 1) where T : struct, IComparable<T> 
+        /// <summary>
+        /// Partition array for maximal and rest elements
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <param name="capacity">Number of maximal elements</param>
+        /// <returns></returns>
+        public static MaxResult<T> Max<T>(this T[] array, int capacity = 1) where T: IComparable<T>
         {
-//            array._Min()
             if (capacity < 1)
             {
                 throw new InvalidOperationException($"Argument {nameof(capacity)} has to be greater than 0.");
@@ -68,12 +72,12 @@ namespace Solidry.Extensions
                 throw new InvalidOperationException($"Argument {nameof(capacity)} has to be equal or less than collection.");
             }
 
-            var min = new T[capacity];
+            var max = new T[capacity];
             var rest = new T[array.Length - capacity];
 
-            Array.Copy(array, min, capacity);
+            Array.Copy(array, max, capacity);
             Array.Copy(array, capacity, rest, 0, array.Length - capacity);
-            Array.Sort(min);
+            Array.Sort(max, Comparer<T>.Create((x, y) => -x.CompareTo(y)));
 
             int lastIndex = capacity - 1;
 
@@ -81,24 +85,21 @@ namespace Solidry.Extensions
             {
                 T e = rest[i];
 
-                int c = e.CompareTo(min[lastIndex]);
+                int c = e.CompareTo(max[lastIndex]);
 
-                if (c < 0)
+                if (c > 0)
                 {
-                    UtilsHelper.Swap(ref rest[i], ref min[lastIndex]);
+                    UtilsHelper.Swap(ref rest[i], ref max[lastIndex]);
 
-                    min.SwapRightUntil((left, right) => left.CompareTo(right) > -1);
+                    max.SwapRightUntil((left, right) => left.CompareTo(right) < 1);
                 }
             }
 
-            return new MinResult<T>(min, rest);
+            return new MaxResult<T>(max, rest);
         }
 
-
-        //TODO: add Max<T>
-
         /// <summary>
-        /// Partition collection doubly
+        /// Partition collection by predicate
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
