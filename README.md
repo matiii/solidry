@@ -12,4 +12,4 @@ Main purpose of Solidry is developing SOLID and DRY code with minimalistic libra
 >Components should be easy to replace without modification of current code.
 
 4. Durability
->Components should be testable and simultaneously well tested to avoid error prone.  
+>Components should be testable and simultaneously well tested to avoid be error prone.  
