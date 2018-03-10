@@ -3,7 +3,7 @@ Main purpose of Solidry is developing SOLID and DRY code with minimalistic libra
 
 ## Main goals
 1. Simplicity
->Every component in library should be easy to understand by Developer. To achive it architecture of library has to be consistent,      >contains   only simlpe mechanisms which allow develop maintainable code.
+>Every component in library should be easy to understand by Developer. To achive it architecture of library has to be consistent,      contains only simlpe mechanisms which allow develop maintainable code.
 
 2. Extensibility
 >Components should be easy to extend if functionality require it.  
