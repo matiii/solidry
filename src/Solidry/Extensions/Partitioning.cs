@@ -5,11 +5,10 @@ using Solidry.Results.Analytics;
 
 namespace Solidry.Extensions
 {
-    public static class Analytics
+    public static class Partitioning
     {
-
         /// <summary>
-        /// Partition array for minimal and rest elements
+        /// Partitioning array for minimal and rest elements
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="array">Source</param>
@@ -54,7 +53,7 @@ namespace Solidry.Extensions
         }
 
         /// <summary>
-        /// Partition array for maximal and rest elements
+        /// Partitioning array for maximal and rest elements
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="array"></param>
@@ -99,7 +98,7 @@ namespace Solidry.Extensions
         }
 
         /// <summary>
-        /// Partition collection by predicate
+        /// Partitioning collection by predicate
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>

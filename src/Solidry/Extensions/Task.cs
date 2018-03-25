@@ -10,7 +10,7 @@ namespace Solidry.Extensions
         /// <param name="task"></param>
         public static void Run(this System.Threading.Tasks.Task task)
         {
-            task.GetAwaiter().GetResult();
+            task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace Solidry.Extensions
         /// <returns></returns>
         public static TResult Result<TResult>(this Task<TResult> task)
         {
-            return task.GetAwaiter().GetResult();
+            return task.ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }
