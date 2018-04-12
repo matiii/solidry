@@ -1,5 +1,5 @@
 ## Solidry
-Main purpose of Solidry is developing SOLID and DRY code with minimalistic library on which mediator pattern is over-engineering. Library allow add new functionality such as cross-cutting concerns in SOLID way, putting extensibility on the stage.
+Main purpose of Solidry is developing SOLID and DRY code with minimalistic library. Solidry allow add new functionality such as cross-cutting concerns in SOLID and easy way.
 
 ## Get Started
 Install the latest version from NuGet
@@ -18,5 +18,5 @@ Install the latest version from NuGet
 3. Replaceability
 >Components should be easy to replace without modification of current code.
 
-4. Durability
+4. Testability
 >Components should be testable and simultaneously well tested to avoid be error prone.  
