@@ -1,22 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using Solidry.Extensions;
+using Solidry.Aspects.Contract;
 using Solidry.Results;
-
-using Task = System.Threading.Tasks.Task;
 
 namespace Solidry.Aspects
 {
     public abstract class WithAspectAsync<TInput, TOutput>
     {
-        private readonly List<Func<TInput, Option<TOutput>>> _before = new List<Func<TInput, Option<TOutput>>>();
-        private readonly List<Func<TInput, Task<Option<TOutput>>>> _beforeAsync = new List<Func<TInput, Task<Option<TOutput>>>>();
+        private readonly IGeneralAspect _generalAspect;
+        private readonly IGeneralAspectAsync _generalAspectAsync;
 
-        private readonly List<Action<TInput, TOutput>> _after = new List<Action<TInput, TOutput>>();
-        private readonly List<Func<TInput, TOutput, Task>> _afterAsync = new List<Func<TInput, TOutput, Task>>();
+        private readonly IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> _beforeAsync;
+        private readonly IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> _afterAsync;
 
-        private bool _aspectsWasRegister;
+        protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
+        {
+            _generalAspect = generalAspect;
+            _generalAspectAsync = generalAspectAsync;
+            _beforeAsync = beforeAsync;
+            _afterAsync = afterAsync;
+        }
+
+        protected WithAspectAsync(IGeneralAspect generalAspect) : this(generalAspect, null, null)
+        {
+        }
+
+        protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync) :
+            this(generalAspect, generalAspectAsync, null)
+        {
+        }
+
+        protected WithAspectAsync(IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : this(generalAspect, null, beforeAsync)
+        {
+        }
+
+        protected WithAspectAsync(IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : this(null, generalAspectAsync,
+            beforeAsync)
+        {
+        }
+
+        protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(generalAspect, generalAspectAsync, beforeAsync, null)
+        {
+        }
 
         /// <summary>
         /// Execute asynchronous logic.
@@ -26,9 +59,9 @@ namespace Solidry.Aspects
         protected abstract Task<TOutput> ExecuteAsync(TInput input);
 
         /// <summary>
-        /// Register aspects.
+        /// Get current operation id
         /// </summary>
-        protected abstract void RegisterAspects();
+        protected Guid CurrentOperationId { get; private set; }
 
         /// <summary>
         /// Execute logic with aspects.
@@ -37,15 +70,14 @@ namespace Solidry.Aspects
         /// <returns></returns>
         protected async Task<TOutput> InvokeAsync(TInput input)
         {
-            if (!_aspectsWasRegister)
-            {
-                RegisterAspects();
-                _aspectsWasRegister = true;
-            }
+            CurrentOperationId = Guid.NewGuid();
+            var stopWatch = Stopwatch.StartNew();
 
-            for (int i = 0; i < _before.Count; i++)
+            Option<TOutput> result = Option<TOutput>.Empty;
+
+            if (_generalAspect != null)
             {
-                Option<TOutput> result = _before[i](input);
+                result = _generalAspect.Before<TInput, TOutput>(input, CurrentOperationId);
 
                 if (result.HasValue)
                 {
@@ -53,62 +85,52 @@ namespace Solidry.Aspects
                 }
             }
 
-            for (int i = 0; i < _beforeAsync.Count; i++)
+            if (_generalAspectAsync != null)
             {
-                Option<TOutput> result = await _beforeAsync[i](input);
+                result = await _generalAspectAsync.BeforeAsync<TInput, TOutput>(input, CurrentOperationId)
+                    .ConfigureAwait(false);
 
                 if (result.HasValue)
                 {
                     return result.Value;
+                }
+            }
+
+            if (_beforeAsync != null)
+            {
+                for (int i = 0; i < _beforeAsync.Count; i++)
+                {
+                    result = await _beforeAsync[i].BeforeAsync(input, CurrentOperationId).ConfigureAwait(false);
+
+                    if (result.HasValue)
+                    {
+                        return result.Value;
+                    }
                 }
             }
 
             TOutput output = await ExecuteAsync(input);
 
-            for (int i = 0; i < _afterAsync.Count; i++)
+            stopWatch.Stop();
+
+            if (_afterAsync != null)
             {
-                await _afterAsync[i](input, output);
+                for (int i = 0; i < _afterAsync.Count; i++)
+                {
+                    await _afterAsync[i].AfterAsync(input, output, CurrentOperationId, stopWatch.Elapsed)
+                        .ConfigureAwait(false);
+                }
             }
 
-            _after.Each(x => x(input, output));
+            if (_generalAspectAsync != null)
+            {
+                await _generalAspectAsync.AfterAsync(input, output, CurrentOperationId, stopWatch.Elapsed)
+                    .ConfigureAwait(false);
+            }
+
+            _generalAspect?.After(input, output, CurrentOperationId, stopWatch.Elapsed);
 
             return output;
-        }
-
-        /// <summary>
-        /// Add synchronous aspect before. Will be executed before asynchronous before aspect.
-        /// </summary>
-        /// <param name="before"></param>
-        protected void AddBefore(Func<TInput, Option<TOutput>> before)
-        {
-            _before.Add(before);
-        }
-
-        /// <summary>
-        /// Add asynchronous aspect before. Will be executed after synchronous before aspect.
-        /// </summary>
-        /// <param name="before"></param>
-        protected void AddBefore(Func<TInput, Task<Option<TOutput>>> before)
-        {
-            _beforeAsync.Add(before);
-        }
-
-        /// <summary>
-        /// Add synchronous aspect after. Will be executed after asynchronous after aspect.
-        /// </summary>
-        /// <param name="after"></param>
-        protected void AddAfter(Action<TInput, TOutput> after)
-        {
-            _after.Add(after);
-        }
-
-        /// <summary>
-        /// Add asynchronous aspect after. Will be executed before synchronous after aspect. 
-        /// </summary>
-        /// <param name="after"></param>
-        protected void AddAfter(Func<TInput, TOutput, Task> after)
-        {
-            _afterAsync.Add(after);
         }
     }
 }

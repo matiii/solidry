@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Solidry.Aspects.Contract;
 using Solidry.Extensions;
 using Solidry.Results;
 
@@ -7,8 +9,30 @@ namespace Solidry.Aspects
 {
     public abstract class WithAspect<TInput, TOutput>
     {
-        private readonly List<Func<TInput, Option<TOutput>>> _before = new List<Func<TInput, Option<TOutput>>>();
-        private readonly List<Action<TInput, TOutput>> _after = new List<Action<TInput, TOutput>>();
+        private readonly IReadOnlyList<IBeforeAspect<TInput, TOutput>> _before;
+        private readonly IReadOnlyList<IAfterAspect<TInput, TOutput>> _after;
+        private readonly IGeneralAspect _generalAspect;
+
+        protected WithAspect(IGeneralAspect generalAspect): this(generalAspect, null, null)
+        {
+        }
+
+        protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before): this(null, before, null)
+        {
+        }
+
+        protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after): this(null, before, after)
+        {
+        }
+
+        protected WithAspect(IGeneralAspect generalAspect, IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after)
+        {
+            _generalAspect = generalAspect;
+            _before = before;
+            _after = after;
+        }
 
         /// <summary>
         /// Implementation of logic.
@@ -18,9 +42,9 @@ namespace Solidry.Aspects
         protected abstract TOutput Execute(TInput input);
 
         /// <summary>
-        /// Register aspects.
+        /// Get current operation id
         /// </summary>
-        protected abstract void RegisterAspects();
+        protected Guid CurrentOperationId { get; private set; }
 
         /// <summary>
         /// Invoke logic with aspects.
@@ -29,39 +53,42 @@ namespace Solidry.Aspects
         /// <returns></returns>
         protected TOutput Invoke(TInput input)
         {
-            for (int i = 0; i < _before.Count; i++)
+            CurrentOperationId = Guid.NewGuid();
+            var stopWatch = Stopwatch.StartNew();
+            Option<TOutput> result = Option<TOutput>.Empty;
+
+            if (_generalAspect != null)
             {
-                Option<TOutput> result = _before[i](input);
+                result = _generalAspect.Before<TInput, TOutput>(input, CurrentOperationId);
 
                 if (result.HasValue)
                 {
                     return result.Value;
                 }
             }
+            
+            if (_before != null)
+            {
+                for (int i = 0; i < _before.Count; i++)
+                {
+                    result = _before[i].Before(input, CurrentOperationId);
+
+                    if (result.HasValue)
+                    {
+                        return result.Value;
+                    }
+                }
+            }
 
             TOutput output = Execute(input);
 
-            _after.Each(x => x(input, output));
+            stopWatch.Stop();
+
+            _after?.Each(x => x.After(input, output, CurrentOperationId, stopWatch.Elapsed));
+
+            _generalAspect?.After(input, output, CurrentOperationId, stopWatch.Elapsed);
 
             return output;
-        }
-
-        /// <summary>
-        /// Add before aspect.
-        /// </summary>
-        /// <param name="before"></param>
-        protected void AddBefore(Func<TInput, Option<TOutput>> before)
-        {
-            _before.Add(before);
-        }
-
-        /// <summary>
-        /// Add after aspect.
-        /// </summary>
-        /// <param name="after"></param>
-        protected void AddAfter(Action<TInput, TOutput> after)
-        {
-            _after.Add(after);
         }
     }
 }

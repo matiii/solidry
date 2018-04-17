@@ -1,42 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Solidry.Aspects.Contract;
 using Solidry.Results;
 
 namespace Solidry.Aspects
 {
     public abstract class WithAspectAndErrorHandlerAsync<TInput, TOutput> : WithAspectAsync<TInput, TOutput>
     {
-        private readonly Dictionary<Type, List<Func<Exception, bool>>> _handlers =
-            new Dictionary<Type, List<Func<Exception, bool>>>();
+        private readonly IErrorHandlerStartegyAsync _errorHandlerStrategy;
 
-        private readonly Dictionary<Type, List<Func<Exception, Task<bool>>>> _handlersAsync =
-            new Dictionary<Type, List<Func<Exception, Task<bool>>>>();
-
-        private readonly bool _shouldBreak;
-
-        private bool _errorHandlersRegistered;
-
-        /// <summary>
-        /// Create error handler.
-        /// </summary>
-        /// <param name="shouldBreak">If true, only one handler handle exception</param>
-        protected WithAspectAndErrorHandlerAsync(bool shouldBreak)
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
+            :base(generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
-            _shouldBreak = shouldBreak;
+            _errorHandlerStrategy = errorHandlerStrategy;
         }
 
-        /// <summary>
-        /// Create error handler with shouldBreak = true.
-        /// </summary>
-        protected WithAspectAndErrorHandlerAsync() : this(true)
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspect generalAspect) : 
+            this(errorHandlerStrategy, generalAspect, null, null, null)
         {
         }
 
-        /// <summary>
-        /// Register error handler.
-        /// </summary>
-        protected abstract void RegisterErrorHandlers();
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync) :
+            this(errorHandlerStrategy, generalAspect, generalAspectAsync, null, null)
+        {
+        }
+
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : 
+            this(errorHandlerStrategy, generalAspect, null, beforeAsync, null)
+        {
+        }
+
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) :
+            this(errorHandlerStrategy, null, generalAspectAsync, beforeAsync)
+        {
+        }
+
+        protected WithAspectAndErrorHandlerAsync(
+            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, generalAspect, generalAspectAsync, beforeAsync, null)
+        {
+        }
 
         /// <summary>
         /// Execute finally logic.
@@ -52,105 +75,26 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Add synchronous error handler. It will be executed before asynchronous error handlers.
-        /// </summary>
-        /// <typeparam name="TException"></typeparam>
-        /// <param name="handler"></param>
-        protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
-        {
-            Type typeException = typeof(TException);
-
-            if (_handlers.ContainsKey(typeException))
-            {
-                _handlers[typeException].Add(e => handler((TException)e));
-            }
-            else
-            {
-                _handlers.Add(typeException, new List<Func<Exception, bool>> { e => handler((TException)e) });
-            }
-        }
-
-        /// <summary>
-        /// Add asynchronous error handler. It will be executed after synchronous error handlers.
-        /// </summary>
-        /// <typeparam name="TException"></typeparam>
-        /// <param name="handler"></param>
-        protected void AddErrorHandler<TException>(Func<TException, Task<bool>> handler) where TException : Exception
-        {
-            Type typeException = typeof(TException);
-
-            if (_handlersAsync.ContainsKey(typeException))
-            {
-                _handlersAsync[typeException].Add(e => handler((TException)e));
-            }
-            else
-            {
-                _handlersAsync.Add(typeException, new List<Func<Exception, Task<bool>>> { e => handler((TException)e) });
-            }
-        }
-
-        /// <summary>
         /// Execute logic with error handler.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected new async Task<Option<TOutput>> InvokeAsync(TInput input)
         {
-            if (!_errorHandlersRegistered)
-            {
-                _errorHandlersRegistered = true;
-                RegisterErrorHandlers();
-            }
-
             try
             {
-                return Option<TOutput>.Create(await base.InvokeAsync(input));
+                return Option<TOutput>.Create(await base.InvokeAsync(input).ConfigureAwait(false));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Type type = e.GetType();
-                bool isHandled = false;
-
-                if (_handlers.ContainsKey(type))
-                {
-                    for (int i = 0; i < _handlers[type].Count; i++)
-                    {
-                        if (_handlers[type][i](e))
-                        {
-                            isHandled = true;
-
-                            if (_shouldBreak)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!isHandled && _handlersAsync.ContainsKey(type))
-                {
-                    for (int i = 0; i < _handlersAsync[type].Count; i++)
-                    {
-                        if (await _handlersAsync[type][i](e))
-                        {
-                            isHandled = true;
-
-                            if (_shouldBreak)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!isHandled)
+                if (await _errorHandlerStrategy.TryHandleAsync(ex, CurrentOperationId).ConfigureAwait(false))
                 {
                     throw;
                 }
             }
             finally
             {
-                await FinallyAsync(input);
+                await FinallyAsync(input).ConfigureAwait(false);
             }
 
             return Option<TOutput>.Empty;

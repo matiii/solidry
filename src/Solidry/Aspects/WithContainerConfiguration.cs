@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Solidry.Model;
 
 namespace Solidry.Aspects
 {
-    public abstract class WithContainerConfiguration<TContainer, TApplicationType> where TContainer : IServiceProvider
+    public abstract class WithContainerConfiguration<TContainer, TApplicationType>
     {
         private readonly TContainer _container;
 
@@ -42,7 +41,6 @@ namespace Solidry.Aspects
     }
 
     public abstract class WithContainerConfiguration<TContainer> : WithContainerConfiguration<TContainer, ApplicationType>
-        where TContainer : IServiceProvider
     {
         protected WithContainerConfiguration(TContainer container): base(container) { }
     }

@@ -1,15 +1,13 @@
-﻿using System;
-using Solidry.Model;
+﻿using Solidry.Model;
 
 namespace Solidry.Aspects
 {
-    public abstract class WithServiceInstaler<TContainer, TApplicationType> where TContainer : IServiceProvider
+    public abstract class WithServiceInstaler<TContainer, TApplicationType>
     {
         public abstract void Install(TContainer container, TApplicationType applicationType);
     }
 
     public abstract class WithServiceInstaller<TContainer> : WithServiceInstaler<TContainer, ApplicationType>
-        where TContainer : IServiceProvider
     {
     }
 }
