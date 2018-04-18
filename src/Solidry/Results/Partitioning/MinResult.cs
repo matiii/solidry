@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Solidry.Results.Analytics
+namespace Solidry.Results.Partitioning
 {
     public struct MinResult<T>: IEquatable<MinResult<T>> where T : IComparable<T>
     {

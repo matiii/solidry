@@ -5,6 +5,11 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// Process asynchronous logic.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
     public abstract class WithProcessorAsync<TInput, TResult>
     {
         private readonly List<TResult> _accumulator;
@@ -59,7 +64,7 @@ namespace Solidry.Aspects
 
             while (!FinishLoop(_input))
             {
-                TResult result = await ProcessAsync(_input);
+                TResult result = await ProcessAsync(_input).ConfigureAwait(false);
 
                 _accumulator.Add(result);
             }

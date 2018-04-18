@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Solidry.Results.Analytics
+namespace Solidry.Results.Partitioning
 {
     public struct PartitionResult<T>: IEquatable<PartitionResult<T>>
     {

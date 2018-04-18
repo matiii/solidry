@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Solidry.Aspects.Contract;
+using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// Aspect with retry.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithRetryAsync<TInput, TOutput>
     {
+        private readonly IRetryStrategy _retryStrategy;
         private readonly int _delayMiliseconds;
 
         /// <summary>
         /// Retry with delay miliseconds.
         /// </summary>
+        /// <param name="retryStrategy"></param>
         /// <param name="delayMiliseconds"></param>
-        protected WithRetryAsync(int delayMiliseconds)
+        protected WithRetryAsync(IRetryStrategy retryStrategy, int delayMiliseconds)
         {
+            _retryStrategy = retryStrategy;
             _delayMiliseconds = delayMiliseconds;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Retry with delay.
         /// </summary>
+        /// <param name="retryStrategy"></param>
         /// <param name="delay"></param>
-        protected WithRetryAsync(TimeSpan delay) : this((int)delay.TotalMilliseconds)
+        protected WithRetryAsync(IRetryStrategy retryStrategy, TimeSpan delay) : this(retryStrategy, (int)delay.TotalMilliseconds)
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Retry with 100 miliseconds.
+        /// Retry with 20 miliseconds.
         /// </summary>
-        protected WithRetryAsync() : this(100)
+        /// <param name="retryStrategy"></param>
+        protected WithRetryAsync(IRetryStrategy retryStrategy) : this(retryStrategy, Constant.DefaultDelay)
         {
         }
 
@@ -39,12 +53,18 @@ namespace Solidry.Aspects
         protected abstract Task<TOutput> ExecuteAsync(TInput input);
 
         /// <summary>
+        /// Current operation id
+        /// </summary>
+        protected Guid OperationId { get; private set; }
+
+        /// <summary>
         /// Invoke logic with retry.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected async Task<TOutput> InvokeAsync(TInput input)
         {
+            OperationId = Guid.NewGuid();
             int attempt = 0;
             int delayMiliseconds = _delayMiliseconds;
 
@@ -54,28 +74,18 @@ namespace Solidry.Aspects
 
                 try
                 {
-                    return await ExecuteAsync(input);
+                    return await ExecuteAsync(input).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    if (!Retry(e, attempt, delayMiliseconds, x => { delayMiliseconds = x; }))
+                    if (!_retryStrategy.Retry(OperationId, e, attempt, delayMiliseconds, x => { delayMiliseconds = x; }))
                     {
                         throw;
                     }
                 }
 
-                await Task.Delay(delayMiliseconds);
+                await Task.Delay(delayMiliseconds).ConfigureAwait(false);
             }
         }
-
-        /// <summary>
-        /// Check if retry logic.
-        /// </summary>
-        /// <param name="ex">Exception threw by logic.</param>
-        /// <param name="attempt">Number of attempts executing logic.</param>
-        /// <param name="currentDelay">Current delay.</param>
-        /// <param name="setNewDelay">Method to set new delay in method scope.</param>
-        /// <returns>If true then retry.</returns>
-        protected abstract bool Retry(Exception ex, int attempt, int currentDelay, Action<int> setNewDelay);
     }
 }

@@ -7,25 +7,52 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// With aspect.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspect<TInput, TOutput>
     {
         private readonly IReadOnlyList<IBeforeAspect<TInput, TOutput>> _before;
         private readonly IReadOnlyList<IAfterAspect<TInput, TOutput>> _after;
         private readonly IGeneralAspect _generalAspect;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with general aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
         protected WithAspect(IGeneralAspect generalAspect): this(generalAspect, null, null)
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with before aspect.
+        /// </summary>
+        /// <param name="before"></param>
         protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before): this(null, before, null)
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with before and after aspect.
+        /// </summary>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
         protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after): this(null, before, after)
         {
         }
 
+        /// <summary>
+        /// Create with general, before and after aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
         protected WithAspect(IGeneralAspect generalAspect, IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after)
         {

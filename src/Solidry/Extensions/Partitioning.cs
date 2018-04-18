@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using Solidry.Helpers;
-using Solidry.Results.Analytics;
+using Solidry.Results.Partitioning;
 
 namespace Solidry.Extensions
 {
+    /// <summary>
+    /// Partition collection extensions.
+    /// </summary>
     public static class Partitioning
     {
         /// <summary>
-        /// Partitioning array for minimal and rest elements
+        /// Partitioning array for minimal and rest elements.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="array">Source</param>
@@ -53,7 +56,7 @@ namespace Solidry.Extensions
         }
 
         /// <summary>
-        /// Partitioning array for maximal and rest elements
+        /// Partitioning array for maximal and rest elements.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="array"></param>
@@ -98,7 +101,7 @@ namespace Solidry.Extensions
         }
 
         /// <summary>
-        /// Partitioning collection by predicate
+        /// Partitioning collection by predicate.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>

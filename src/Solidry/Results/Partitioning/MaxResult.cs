@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Solidry.Results.Analytics
+namespace Solidry.Results.Partitioning
 {
     public struct MaxResult<T> : IEquatable<MaxResult<T>> where T : IComparable<T>
     {

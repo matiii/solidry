@@ -6,10 +6,23 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// Aspect with error handler.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspectAndErrorHandlerAsync<TInput, TOutput> : WithAspectAsync<TInput, TOutput>
     {
         private readonly IErrorHandlerStartegyAsync _errorHandlerStrategy;
 
+        /// <summary>
+        /// Create with error handler strategy, general aspect, asynchronous general aspect, asynchronous before and after aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
@@ -21,6 +34,12 @@ namespace Solidry.Aspects
             _errorHandlerStrategy = errorHandlerStrategy;
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy and general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect) : 
@@ -28,6 +47,13 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
@@ -36,6 +62,13 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
@@ -44,6 +77,13 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspectAsync generalAspectAsync,
@@ -52,6 +92,14 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
             IErrorHandlerStartegyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
@@ -87,7 +135,7 @@ namespace Solidry.Aspects
             }
             catch (Exception ex)
             {
-                if (await _errorHandlerStrategy.TryHandleAsync(ex, CurrentOperationId).ConfigureAwait(false))
+                if (!await _errorHandlerStrategy.TryHandleAsync(ex, CurrentOperationId).ConfigureAwait(false))
                 {
                     throw;
                 }

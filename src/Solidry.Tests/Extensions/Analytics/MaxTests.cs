@@ -1,5 +1,4 @@
 ﻿using Solidry.Extensions;
-using Solidry.Results.Analytics;
 using Xunit;
 
 namespace Solidry.Tests.Extensions.Analytics

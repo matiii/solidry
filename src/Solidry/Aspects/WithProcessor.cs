@@ -5,7 +5,7 @@ using Solidry.Results;
 namespace Solidry.Aspects
 {
     /// <summary>
-    /// Process recursion in object oriented way.
+    /// Process logic.
     /// </summary>
     public abstract class WithProcessor<TInput, TResult>
     {

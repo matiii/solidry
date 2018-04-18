@@ -5,26 +5,58 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Aspect with error handler.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspectAndErrorHandler<TInput, TOutput> : WithAspect<TInput, TOutput>
     {
         private readonly IErrorHandlerStrategy _errorHandlerStrategy;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy and general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
         protected WithAspectAndErrorHandler(IErrorHandlerStrategy errorHandlerStrategy, IGeneralAspect generalAspect) :
             this(errorHandlerStrategy, generalAspect, null, null)
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy and before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="before"></param>
         protected WithAspectAndErrorHandler(IErrorHandlerStrategy errorHandlerStrategy,
             IReadOnlyList<IBeforeAspect<TInput, TOutput>> before) : this(errorHandlerStrategy, before, null)
         {
         }
 
+        /// <summary>
+        /// Create with error handler strategy, before and after aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
         protected WithAspectAndErrorHandler(IErrorHandlerStrategy errorHandlerStrategy,
             IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after) : this(errorHandlerStrategy, null, before, after)
         {
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, general aspect, before and after aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
         protected WithAspectAndErrorHandler(IErrorHandlerStrategy errorHandlerStrategy, IGeneralAspect generalAspect,
             IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after) : base(generalAspect, before, after)
