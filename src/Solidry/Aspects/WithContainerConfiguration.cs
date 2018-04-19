@@ -45,7 +45,7 @@ namespace Solidry.Aspects
         /// Get all installers to install.
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerable<WithServiceInstaler<TContainer, TApplicationType>> GetServiceInstallers();
+        public abstract IEnumerable<WithServiceInstaller<TContainer, TApplicationType>> GetServiceInstallers();
     }
 
     /// <inheritdoc />

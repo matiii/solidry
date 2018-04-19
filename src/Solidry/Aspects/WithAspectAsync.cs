@@ -7,6 +7,11 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// Asynchronous aspect.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspectAsync<TInput, TOutput>
     {
         private readonly IGeneralAspect _generalAspect;
@@ -15,7 +20,16 @@ namespace Solidry.Aspects
         private readonly IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> _beforeAsync;
         private readonly IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> _afterAsync;
 
-        protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync,
+        /// <summary>
+        /// Create with general aspect, asynchronous general aspect, asynchronous before and after aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
+        protected WithAspectAsync(
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
             IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
         {
@@ -25,26 +39,51 @@ namespace Solidry.Aspects
             _afterAsync = afterAsync;
         }
 
+        /// <summary>
+        /// Create with general aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
         protected WithAspectAsync(IGeneralAspect generalAspect) : this(generalAspect, null, null)
         {
         }
 
+        /// <summary>
+        /// Create with general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
         protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync) :
             this(generalAspect, generalAspectAsync, null)
         {
         }
 
+        /// <summary>
+        /// Create with general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAsync(IGeneralAspect generalAspect,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : this(generalAspect, null, beforeAsync)
         {
         }
 
+        /// <summary>
+        /// Create with asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAsync(IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : this(null, generalAspectAsync,
             beforeAsync)
         {
         }
 
+        /// <summary>
+        /// Create with general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
         protected WithAspectAsync(IGeneralAspect generalAspect, IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
             : this(generalAspect, generalAspectAsync, beforeAsync, null)

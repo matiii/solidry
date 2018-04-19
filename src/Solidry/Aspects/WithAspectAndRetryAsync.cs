@@ -1,33 +1,210 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Solidry.Aspects.Contract;
+using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
 {
+    /// <summary>
+    /// Asynchronous aspect with retry.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspectAndRetryAsync<TInput, TOutput> : WithAspectAsync<TInput, TOutput>
     {
+        private readonly IRetryStrategy _retryStrategy;
         private readonly int _delayMiliseconds;
 
         /// <summary>
-        /// Retry with delay miliseconds.
-        /// </summary>
-        /// <param name="delayMiliseconds"></param>
-        protected WithAspectAndRetryAsync(int delayMiliseconds)
-        {
-            _delayMiliseconds = delayMiliseconds;
-        }
-
-        /// <summary>
-        /// Retry with delay.
+        /// Create with delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
         /// </summary>
         /// <param name="delay"></param>
-        protected WithAspectAndRetryAsync(TimeSpan delay) : this((int)delay.TotalMilliseconds)
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
+        protected WithAspectAndRetryAsync(
+            TimeSpan delay,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync) 
+            :base(generalAspect, generalAspectAsync, beforeAsync, afterAsync)
+        {
+            _retryStrategy = retryStrategy;
+            _delayMiliseconds = (int) delay.TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// Create with 20ms delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
         }
 
         /// <summary>
-        /// Retry with 100 miliseconds.
+        /// Create with retry strategy, delay and general aspect.
         /// </summary>
-        protected WithAspectAndRetryAsync() : this(100)
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect) 
+            :this(TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, null, null, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, 20ms delay and general aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, null, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, delay, general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync)
+            : this(TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, generalAspectAsync, null, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, 20ms delay, general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, null, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, delay, general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, null, beforeAsync, null)
+
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, 20ms delay, general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, beforeAsync, null)
+
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, delay, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(TimeSpan.FromMilliseconds(delay), retryStrategy, null, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, 20ms delay, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, null, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, delay, general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            :this(TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <summary>
+        /// Create with retry strategy, 20ms delay, general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithAspectAndRetryAsync(
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, null)
         {
         }
 
@@ -47,28 +224,18 @@ namespace Solidry.Aspects
 
                 try
                 {
-                    return await base.InvokeAsync(input);
+                    return await base.InvokeAsync(input).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    if (!Retry(e, attempt, delayMiliseconds, x => { delayMiliseconds = x; }))
+                    if (!_retryStrategy.Retry(CurrentOperationId, e, attempt, delayMiliseconds, x => { delayMiliseconds = x; }))
                     {
                         throw;
                     }
                 }
 
-                await Task.Delay(delayMiliseconds);
+                await Task.Delay(delayMiliseconds).ConfigureAwait(false);
             }
         }
-
-        /// <summary>
-        /// Check if retry logic.
-        /// </summary>
-        /// <param name="ex">Exception threw by logic.</param>
-        /// <param name="attempt">Number of attempts executing logic.</param>
-        /// <param name="currentDelay">Current delay.</param>
-        /// <param name="setNewDelay">Method to set new delay in method scope.</param>
-        /// <returns>If true then retry.</returns>
-        protected abstract bool Retry(Exception ex, int attempt, int currentDelay, Action<int> setNewDelay);
     }
 }
