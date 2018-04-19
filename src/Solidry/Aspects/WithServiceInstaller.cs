@@ -17,6 +17,7 @@ namespace Solidry.Aspects
         public abstract void Install(TContainer container, TApplicationType applicationType);
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Define module with service installer per application type.
     /// </summary>

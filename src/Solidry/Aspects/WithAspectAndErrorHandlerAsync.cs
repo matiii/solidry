@@ -6,6 +6,7 @@ using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
     /// <summary>
     /// Aspect with error handler.
     /// </summary>
@@ -13,8 +14,9 @@ namespace Solidry.Aspects
     /// <typeparam name="TOutput"></typeparam>
     public abstract class WithAspectAndErrorHandlerAsync<TInput, TOutput> : WithAspectAsync<TInput, TOutput>
     {
-        private readonly IErrorHandlerStartegyAsync _errorHandlerStrategy;
+        private readonly IErrorHandlerStrategyAsync _errorHandlerStrategy;
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with error handler strategy, general aspect, asynchronous general aspect, asynchronous before and after aspect.
         /// </summary>
@@ -24,7 +26,7 @@ namespace Solidry.Aspects
         /// <param name="beforeAsync"></param>
         /// <param name="afterAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
             IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
@@ -41,7 +43,7 @@ namespace Solidry.Aspects
         /// <param name="errorHandlerStrategy"></param>
         /// <param name="generalAspect"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect) : 
             this(errorHandlerStrategy, generalAspect, null, null, null)
         {
@@ -55,7 +57,7 @@ namespace Solidry.Aspects
         /// <param name="generalAspect"></param>
         /// <param name="generalAspectAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
             IGeneralAspectAsync generalAspectAsync) :
             this(errorHandlerStrategy, generalAspect, generalAspectAsync, null, null)
@@ -70,7 +72,7 @@ namespace Solidry.Aspects
         /// <param name="generalAspect"></param>
         /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) : 
             this(errorHandlerStrategy, generalAspect, null, beforeAsync, null)
@@ -85,7 +87,7 @@ namespace Solidry.Aspects
         /// <param name="generalAspectAsync"></param>
         /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync) :
             this(errorHandlerStrategy, null, generalAspectAsync, beforeAsync)
@@ -101,7 +103,7 @@ namespace Solidry.Aspects
         /// <param name="generalAspectAsync"></param>
         /// <param name="beforeAsync"></param>
         protected WithAspectAndErrorHandlerAsync(
-            IErrorHandlerStartegyAsync errorHandlerStrategy,
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
             IGeneralAspect generalAspect,
             IGeneralAspectAsync generalAspectAsync,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)

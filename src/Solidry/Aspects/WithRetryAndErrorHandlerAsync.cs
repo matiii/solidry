@@ -14,18 +14,18 @@ namespace Solidry.Aspects
     /// <typeparam name="TOutput"></typeparam>
     public abstract class WithRetryAndErrorHandlerAsync<TInput, TOutput> : WithRetryAsync<TInput, TOutput>
     {
-        private readonly IErrorHandlerStartegyAsync _errorHandlerStartegy;
+        private readonly IErrorHandlerStrategyAsync _errorHandlerStrategy;
 
         /// <inheritdoc />
         /// <summary>
         /// Create retry aspect with error handler.
         /// </summary>
         /// <param name="retryStrategy"></param>
-        /// <param name="errorHandlerStartegy"></param>
+        /// <param name="errorHandlerStrategy"></param>
         /// <param name="delay"></param>
-        protected WithRetryAndErrorHandlerAsync(IRetryStrategy retryStrategy, IErrorHandlerStartegyAsync errorHandlerStartegy, TimeSpan delay): base(retryStrategy, delay)
+        protected WithRetryAndErrorHandlerAsync(IRetryStrategy retryStrategy, IErrorHandlerStrategyAsync errorHandlerStrategy, TimeSpan delay): base(retryStrategy, delay)
         {
-            _errorHandlerStartegy = errorHandlerStartegy;
+            _errorHandlerStrategy = errorHandlerStrategy;
         }
 
         /// <inheritdoc />
@@ -33,8 +33,8 @@ namespace Solidry.Aspects
         /// Create retry aspect with 20ms delay and error handler.
         /// </summary>
         /// <param name="retryStrategy"></param>
-        /// <param name="errorHandlerStartegy"></param>
-        protected WithRetryAndErrorHandlerAsync(IRetryStrategy retryStrategy, IErrorHandlerStartegyAsync errorHandlerStartegy): this(retryStrategy, errorHandlerStartegy, TimeSpan.FromMilliseconds(Constant.DefaultDelay))
+        /// <param name="errorHandlerStrategy"></param>
+        protected WithRetryAndErrorHandlerAsync(IRetryStrategy retryStrategy, IErrorHandlerStrategyAsync errorHandlerStrategy): this(retryStrategy, errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay))
         {
             
         }
@@ -65,7 +65,7 @@ namespace Solidry.Aspects
             }
             catch (Exception e)
             {
-                if (!await _errorHandlerStartegy.TryHandleAsync(e, OperationId).ConfigureAwait(false))
+                if (!await _errorHandlerStrategy.TryHandleAsync(e, OperationId).ConfigureAwait(false))
                 {
                     throw;
                 }

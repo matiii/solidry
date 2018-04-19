@@ -1,41 +1,140 @@
 ﻿using System;
 using System.Collections.Generic;
+using Solidry.Aspects.Contract;
+using Solidry.Aspects.Internal;
 using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
     /// <summary>
-    /// With aspect and retry and error handler
+    /// With aspect and retry and error handler.
     /// </summary>
     public abstract class WithSaga<TInput, TOutput> : WithAspectAndRetry<TInput, TOutput>
     {
-        private readonly Dictionary<Type, List<Func<Exception, bool>>> _handlers =
-            new Dictionary<Type, List<Func<Exception, bool>>>();
+        private readonly IErrorHandlerStrategy _errorHandlerStrategy;
 
-        private readonly bool _shouldBreak;
-
-        private bool _errorHandlersRegistered;
-
+        /// <inheritdoc />
         /// <summary>
-        /// Create error handler.
+        /// Create with error handler strategy, retry strategy, delay and general aspect.
         /// </summary>
-        /// <param name="shouldBreak">If true, only one handler handle exception</param>
-        protected WithSaga(bool shouldBreak)
-        {
-            _shouldBreak = shouldBreak;
-        }
-
-        /// <summary>
-        /// Create error handler with shouldBreak = true.
-        /// </summary>
-        protected WithSaga() : this(true)
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, null, null)
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Register error handlers
+        /// Create with error handler strategy, retry strategy, 20ms delay and general aspect.
         /// </summary>
-        protected abstract void RegisterErrorHandlers();
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay and before aspect.
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <param name="before"></param>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IReadOnlyList<IBeforeAspect<TInput, TOutput>> before) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, null, before, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay and before aspect.
+        /// </summary>
+        /// <param name="before"></param>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IReadOnlyList<IBeforeAspect<TInput, TOutput>> before) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, null, before, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay, before and after aspect.
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, null, before, after)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay, before and after aspect.
+        /// </summary>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after) :
+            this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, null, before, after)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, delay, retry strategy, general, before and after aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="before"></param>
+        /// <param name="after"></param>
+        protected WithSaga(
+            IErrorHandlerStrategy errorHandlerStrategy,
+            TimeSpan delay,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after) :
+            base(delay, retryStrategy, generalAspect, before, after)
+        {
+            _errorHandlerStrategy = errorHandlerStrategy;
+        }
 
         /// <summary>
         /// Execute finally logic. It will execute always.
@@ -48,63 +147,19 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Add error handler. If return true exception has been handled.
-        /// </summary>
-        /// <typeparam name="TException"></typeparam>
-        /// <param name="handler"></param>
-        protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
-        {
-            Type typeException = typeof(TException);
-
-            if (_handlers.ContainsKey(typeException))
-            {
-                _handlers[typeException].Add(e => handler((TException)e));
-            }
-            else
-            {
-                _handlers.Add(typeException, new List<Func<Exception, bool>> { e => handler((TException)e) });
-            }
-        }
-
-        /// <summary>
         /// Execute logic with error handlers.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected new Option<TOutput> Invoke(TInput input)
         {
-            if (!_errorHandlersRegistered)
-            {
-                RegisterErrorHandlers();
-                _errorHandlersRegistered = true;
-            }
-
             try
             {
                 return Option<TOutput>.Create(base.Invoke(input));
             }
             catch (Exception e)
             {
-                Type type = e.GetType();
-                bool isHandled = false;
-
-                if (_handlers.ContainsKey(type))
-                {
-                    for (int i = 0; i < _handlers[type].Count; i++)
-                    {
-                        if (_handlers[type][i](e))
-                        {
-                            isHandled = true;
-
-                            if (_shouldBreak)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!isHandled)
+                if (!_errorHandlerStrategy.TryHandle(e, CurrentOperationId))
                 {
                     throw;
                 }

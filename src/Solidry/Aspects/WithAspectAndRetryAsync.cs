@@ -6,6 +6,7 @@ using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
     /// <summary>
     /// Asynchronous aspect with retry.
     /// </summary>
@@ -16,6 +17,7 @@ namespace Solidry.Aspects
         private readonly IRetryStrategy _retryStrategy;
         private readonly int _delayMiliseconds;
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
         /// </summary>
@@ -38,6 +40,7 @@ namespace Solidry.Aspects
             _delayMiliseconds = (int) delay.TotalMilliseconds;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with 20ms delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
         /// </summary>
@@ -56,6 +59,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, delay and general aspect.
         /// </summary>
@@ -70,6 +74,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, 20ms delay and general aspect.
         /// </summary>
@@ -82,6 +87,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, delay, general aspect and asynchronous general aspect.
         /// </summary>
@@ -98,6 +104,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, 20ms delay, general aspect and asynchronous general aspect.
         /// </summary>
@@ -112,6 +119,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, delay, general aspect and asynchronous before aspect.
         /// </summary>
@@ -129,6 +137,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, 20ms delay, general aspect and asynchronous before aspect.
         /// </summary>
@@ -140,10 +149,10 @@ namespace Solidry.Aspects
             IGeneralAspect generalAspect,
             IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
             : this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, beforeAsync, null)
-
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, delay, asynchronous general aspect and asynchronous before aspect.
         /// </summary>
@@ -160,6 +169,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, 20ms delay, asynchronous general aspect and asynchronous before aspect.
         /// </summary>
@@ -174,6 +184,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, delay, general aspect, asynchronous general aspect and asynchronous before aspect.
         /// </summary>
@@ -192,6 +203,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with retry strategy, 20ms delay, general aspect, asynchronous general aspect and asynchronous before aspect.
         /// </summary>

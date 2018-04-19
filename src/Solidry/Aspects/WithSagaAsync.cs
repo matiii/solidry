@@ -1,42 +1,246 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Solidry.Aspects.Contract;
+using Solidry.Aspects.Internal;
 using Solidry.Results;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// With asynchronous saga.
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public abstract class WithSagaAsync<TInput, TOutput> : WithAspectAndRetryAsync<TInput, TOutput>
     {
-        private readonly Dictionary<Type, List<Func<Exception, bool>>> _handlers =
-            new Dictionary<Type, List<Func<Exception, bool>>>();
+        private readonly IErrorHandlerStrategyAsync _errorHandlerStrategy;
 
-        private readonly Dictionary<Type, List<Func<Exception, Task<bool>>>> _handlersAsync =
-            new Dictionary<Type, List<Func<Exception, Task<bool>>>>();
-
-        private readonly bool _shouldBreak;
-
-        private bool _errorHandlersRegistered;
-
+        /// <inheritdoc />
         /// <summary>
-        /// Create error handler.
+        /// Create with error handler strategy, delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
         /// </summary>
-        /// <param name="shouldBreak">If true, only one handler handle exception</param>
-        protected WithSagaAsync(bool shouldBreak)
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            TimeSpan delay,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
+            : base(delay, retryStrategy, generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
-            _shouldBreak = shouldBreak;
+            _errorHandlerStrategy = errorHandlerStrategy;
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Create error handler with shouldBreak = true.
+        /// Create with error handler strategy, 20ms delay, retry strategy, general aspect, asynchronous aspect, asynchronous before and after aspect.
         /// </summary>
-        protected WithSagaAsync() : this(true)
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        /// <param name="afterAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync,
+            IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Register error handler.
+        /// Create with error handler strategy, retry strategy, delay and general aspect.
         /// </summary>
-        protected abstract void RegisterErrorHandlers();
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, null, null, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay and general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, null, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay, general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, generalAspectAsync, null, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay, general aspect and asynchronous general aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, null, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay, general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, null, beforeAsync, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay, general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, null, beforeAsync, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, null, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, null, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, delay, general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="delay"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            int delay,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(delay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, null)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with error handler strategy, retry strategy, 20ms delay, general aspect, asynchronous general aspect and asynchronous before aspect.
+        /// </summary>
+        /// <param name="errorHandlerStrategy"></param>
+        /// <param name="retryStrategy"></param>
+        /// <param name="generalAspect"></param>
+        /// <param name="generalAspectAsync"></param>
+        /// <param name="beforeAsync"></param>
+        protected WithSagaAsync(
+            IErrorHandlerStrategyAsync errorHandlerStrategy,
+            IRetryStrategy retryStrategy,
+            IGeneralAspect generalAspect,
+            IGeneralAspectAsync generalAspectAsync,
+            IReadOnlyList<IBeforeAspectAsync<TInput, TOutput>> beforeAsync)
+            : this(errorHandlerStrategy, TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, generalAspect, generalAspectAsync, beforeAsync, null)
+        {
+        }
 
         /// <summary>
         /// Execute finally logic.
@@ -52,105 +256,26 @@ namespace Solidry.Aspects
         }
 
         /// <summary>
-        /// Add synchronous error handler. It will be executed before asynchronous error handlers.
-        /// </summary>
-        /// <typeparam name="TException"></typeparam>
-        /// <param name="handler"></param>
-        protected void AddErrorHandler<TException>(Func<TException, bool> handler) where TException : Exception
-        {
-            Type typeException = typeof(TException);
-
-            if (_handlers.ContainsKey(typeException))
-            {
-                _handlers[typeException].Add(e => handler((TException)e));
-            }
-            else
-            {
-                _handlers.Add(typeException, new List<Func<Exception, bool>> { e => handler((TException)e) });
-            }
-        }
-
-        /// <summary>
-        /// Add asynchronous error handler. It will be executed after synchronous error handlers.
-        /// </summary>
-        /// <typeparam name="TException"></typeparam>
-        /// <param name="handler"></param>
-        protected void AddErrorHandler<TException>(Func<TException, Task<bool>> handler) where TException : Exception
-        {
-            Type typeException = typeof(TException);
-
-            if (_handlersAsync.ContainsKey(typeException))
-            {
-                _handlersAsync[typeException].Add(e => handler((TException)e));
-            }
-            else
-            {
-                _handlersAsync.Add(typeException, new List<Func<Exception, Task<bool>>> { e => handler((TException)e) });
-            }
-        }
-
-        /// <summary>
         /// Execute logic with error handler.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         protected new async Task<Option<TOutput>> InvokeAsync(TInput input)
         {
-            if (!_errorHandlersRegistered)
-            {
-                _errorHandlersRegistered = true;
-                RegisterErrorHandlers();
-            }
-
             try
             {
-                return Option<TOutput>.Create(await base.InvokeAsync(input));
+                return Option<TOutput>.Create(await base.InvokeAsync(input).ConfigureAwait(false));
             }
             catch (Exception e)
             {
-                Type type = e.GetType();
-                bool isHandled = false;
-
-                if (_handlers.ContainsKey(type))
-                {
-                    for (int i = 0; i < _handlers[type].Count; i++)
-                    {
-                        if (_handlers[type][i](e))
-                        {
-                            isHandled = true;
-
-                            if (_shouldBreak)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!isHandled && _handlersAsync.ContainsKey(type))
-                {
-                    for (int i = 0; i < _handlersAsync[type].Count; i++)
-                    {
-                        if (await _handlersAsync[type][i](e))
-                        {
-                            isHandled = true;
-
-                            if (_shouldBreak)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!isHandled)
+                if (!await _errorHandlerStrategy.TryHandleAsync(e, CurrentOperationId).ConfigureAwait(false))
                 {
                     throw;
                 }
             }
             finally
             {
-                await FinallyAsync(input);
+                await FinallyAsync(input).ConfigureAwait(false);
             }
 
             return Option<TOutput>.Empty;

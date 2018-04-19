@@ -6,6 +6,7 @@ using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
 {
+    /// <inheritdoc />
     /// <summary>
     /// Aspect with retry.
     /// </summary>
@@ -93,7 +94,6 @@ namespace Solidry.Aspects
         /// <summary>
         /// Create with retry strategy, 20ms delay, before and after aspect.
         /// </summary>
-        /// <param name="delay"></param>
         /// <param name="before"></param>
         /// <param name="after"></param>
         /// <param name="retryStrategy"></param>
@@ -105,6 +105,7 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Create with delay, retry strategy, general, before and after aspect.
         /// </summary>
