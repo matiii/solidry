@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Results;
 
 namespace Solidry.Aspects
@@ -33,7 +34,17 @@ namespace Solidry.Aspects
             IReadOnlyList<IAfterAspectAsync<TInput, TOutput>> afterAsync)
             :base(generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
-            _errorHandlerStrategy = errorHandlerStrategy;
+            _errorHandlerStrategy = errorHandlerStrategy ?? throw new ArgumentNullException("Error handler strategy cannot be null.");
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspectAndErrorHandlerAsync(IAspectAndErrorHandlerAsyncFactory<TInput, TOutput> factory)
+            : this(factory.ErrorHandlerStrategy, factory.GeneralAspect, factory.GeneralAspectAsync, factory.BeforeAsync, factory.AfterAsync)
+        {
         }
 
         /// <inheritdoc />

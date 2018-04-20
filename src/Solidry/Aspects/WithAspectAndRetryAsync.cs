@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
@@ -38,6 +39,16 @@ namespace Solidry.Aspects
         {
             _retryStrategy = retryStrategy;
             _delayMiliseconds = (int) delay.TotalMilliseconds;
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspectAndRetryAsync(IAspectAndRetryAsyncFactory<TInput, TOutput> factory)
+            : this(factory.Delay, factory.RetryStrategy, factory.GeneralAspect, factory.GeneralAspectAsync, factory.BeforeAsync, factory.AfterAsync)
+        {
         }
 
         /// <inheritdoc />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Aspects.Internal;
 
 namespace Solidry.Aspects
@@ -102,6 +103,16 @@ namespace Solidry.Aspects
             IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after) :
             this(TimeSpan.FromMilliseconds(Constant.DefaultDelay), retryStrategy, null, before, after)
+        {
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspectAndRetry(IAspectAndRetryFactory<TInput, TOutput> factory)
+            :this(factory.Delay, factory.RetryStrategy, factory.GeneralAspect, factory.Before, factory.After)
         {
         }
 

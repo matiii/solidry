@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Extensions;
 using Solidry.Results;
 
@@ -23,7 +24,7 @@ namespace Solidry.Aspects
         /// Create with general aspect.
         /// </summary>
         /// <param name="generalAspect"></param>
-        protected WithAspect(IGeneralAspect generalAspect): this(generalAspect, null, null)
+        protected WithAspect(IGeneralAspect generalAspect) : this(generalAspect, null, null)
         {
         }
 
@@ -32,7 +33,7 @@ namespace Solidry.Aspects
         /// Create with before aspect.
         /// </summary>
         /// <param name="before"></param>
-        protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before): this(null, before, null)
+        protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before) : this(null, before, null)
         {
         }
 
@@ -43,7 +44,16 @@ namespace Solidry.Aspects
         /// <param name="before"></param>
         /// <param name="after"></param>
         protected WithAspect(IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
-            IReadOnlyList<IAfterAspect<TInput, TOutput>> after): this(null, before, after)
+            IReadOnlyList<IAfterAspect<TInput, TOutput>> after) : this(null, before, after)
+        {
+        }
+
+        /// <summary>
+        /// Create with aspect factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspect(IAspectFactory<TInput, TOutput> factory)
+            : this(factory.GeneralAspect, factory.Before, factory.After)
         {
         }
 
@@ -93,7 +103,7 @@ namespace Solidry.Aspects
                     return result.Value;
                 }
             }
-            
+
             if (_before != null)
             {
                 for (int i = 0; i < _before.Count; i++)

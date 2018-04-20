@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Results;
 
 namespace Solidry.Aspects
@@ -49,6 +50,15 @@ namespace Solidry.Aspects
         {
         }
 
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspectAndErrorHandler(IAspectAndErrorHandlerFactory<TInput, TOutput> factory)
+            : this(factory.ErrorHandlerStrategy, factory.GeneralAspect, factory.Before, factory.After)
+        {
+        }
+
         /// <inheritdoc />
         /// <summary>
         /// Create with error handler strategy, general aspect, before and after aspect.
@@ -61,7 +71,7 @@ namespace Solidry.Aspects
             IReadOnlyList<IBeforeAspect<TInput, TOutput>> before,
             IReadOnlyList<IAfterAspect<TInput, TOutput>> after) : base(generalAspect, before, after)
         {
-            _errorHandlerStrategy = errorHandlerStrategy;
+            _errorHandlerStrategy = errorHandlerStrategy ?? throw new ArgumentNullException("Error handler cannot be null.");
         }
 
         /// <summary>
