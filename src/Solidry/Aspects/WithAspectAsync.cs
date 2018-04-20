@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Results;
 
 namespace Solidry.Aspects
@@ -37,6 +38,15 @@ namespace Solidry.Aspects
             _generalAspectAsync = generalAspectAsync;
             _beforeAsync = beforeAsync;
             _afterAsync = afterAsync;
+        }
+
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithAspectAsync(IAspectAsyncFactory<TInput, TOutput> factory)
+            :this(factory.GeneralAspect, factory.GeneralAspectAsync, factory.BeforeAsync, factory.AfterAsync)
+        {
         }
 
         /// <summary>

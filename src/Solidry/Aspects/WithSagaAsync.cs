@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Aspects.Internal;
 using Solidry.Results;
 
@@ -39,6 +40,22 @@ namespace Solidry.Aspects
             : base(delay, retryStrategy, generalAspect, generalAspectAsync, beforeAsync, afterAsync)
         {
             _errorHandlerStrategy = errorHandlerStrategy;
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithSagaAsync(ISagaAsyncFactory<TInput, TOutput> factory)
+            : this(
+                factory.ErrorHandlerStrategy,
+                factory.Delay, factory.RetryStrategy,
+                factory.GeneralAspect,
+                factory.GeneralAspectAsync,
+                factory.BeforeAsync,
+                factory.AfterAsync)
+        {
         }
 
         /// <inheritdoc />

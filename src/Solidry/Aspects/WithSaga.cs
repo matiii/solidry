@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Solidry.Aspects.Contract;
+using Solidry.Aspects.Contract.Factory;
 using Solidry.Aspects.Internal;
 using Solidry.Results;
 
@@ -134,6 +135,17 @@ namespace Solidry.Aspects
             base(delay, retryStrategy, generalAspect, before, after)
         {
             _errorHandlerStrategy = errorHandlerStrategy;
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Create with factory.
+        /// </summary>
+        /// <param name="factory"></param>
+        protected WithSaga(ISagaFactory<TInput, TOutput> factory) :
+            this(
+                factory.ErrorHandlerStrategy, factory.Delay, factory.RetryStrategy, factory.GeneralAspect, factory.Before, factory.After)
+        {
         }
 
         /// <summary>

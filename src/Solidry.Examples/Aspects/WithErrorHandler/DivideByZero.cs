@@ -1,5 +1,6 @@
 ﻿using System;
 using Solidry.Aspects;
+using Solidry.Aspects.Contract;
 using Solidry.Results;
 
 namespace Solidry.Examples.Aspects.WithErrorHandler
@@ -20,32 +21,15 @@ namespace Solidry.Examples.Aspects.WithErrorHandler
 
             return input / 0;
         }
-
-        protected override void RegisterErrorHandlers()
-        {
-            AddErrorHandler<Exception>(e =>
-            {
-                if (e.Message.Equals("Input should be more than 0"))
-                {
-                    Console.WriteLine("You set input to 0, should be greater than 0.");
-
-                    return true;
-                }
-
-                return false;
-            });
-
-            AddErrorHandler<DivideByZeroException>(e =>
-            {
-                Console.WriteLine("It must happend.");
-
-                return true;
-            });
-        }
+        
 
         public Option<int> Execute(int input)
         {
             return Invoke(input);
+        }
+
+        public DivideByZero() : base(new ExceptionHandler())
+        {
         }
     }
 }

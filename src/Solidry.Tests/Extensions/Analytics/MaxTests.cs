@@ -1,4 +1,5 @@
 ﻿using Solidry.Extensions;
+using Solidry.Results.Partitioning;
 using Xunit;
 
 namespace Solidry.Tests.Extensions.Analytics

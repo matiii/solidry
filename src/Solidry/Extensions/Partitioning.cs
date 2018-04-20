@@ -17,7 +17,7 @@ namespace Solidry.Extensions
         /// <param name="array">Source</param>
         /// <param name="capacity">Number of minimal elements</param>
         /// <returns></returns>
-        public static MinResult<T> Min<T>(this T[] array, int capacity = 1) where T : class, IComparable<T>
+        public static MinResult<T> Min<T>(this T[] array, int capacity = 1) where T : IComparable<T>
         {
             if (capacity < 1)
             {
