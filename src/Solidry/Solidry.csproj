@@ -27,10 +27,5 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net46|AnyCPU'">
     <DocumentationFile>bin\Release\net46\Solidry.xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Aspects\Contract\Factory\" />
-    <Folder Include="Aspects\Factory\" />
-  </ItemGroup>
   
 </Project>
